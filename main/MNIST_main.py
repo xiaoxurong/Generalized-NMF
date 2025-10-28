@@ -19,6 +19,8 @@ from sklearn.linear_model import Lasso
 from sklearn.preprocessing import normalize
 from src.nmf import *
 from sklearn.datasets import fetch_olivetti_faces, fetch_openml 
+from kymatio import Scattering2D
+from torchvision import transforms
 
 def arg_parser():
     parser = argparse.ArgumentParser(description="Iterative subspace clustering with NMF")
@@ -38,34 +40,109 @@ def arg_parser():
     return parser.parse_args()
 
 def main(model, r, n, K, sigma=0.0, alpha = 0.1, l1_reg=0.01, random_state=None, max_iter=500, tol=1e-6, n_nonzero_coefs=8):
+    # np.random.seed(random_state)
+    # mnist = fetch_openml('mnist_784', version=1)
+    # X_full = mnist.data.to_numpy() 
+    # y_full = mnist.target.to_numpy().astype(int) 
+
+    # # 2. Subset digits 0-5
+    # X_list = []
+    # labels = []
+
+    # for digit in range(K):
+    #     idx = np.where(y_full == digit)[0]
+    #     selected_idx = np.random.choice(idx, n, replace=False)
+    #     X_list.append(X_full[selected_idx])
+    #     labels.append(np.full(len(selected_idx), digit))
+
+    # X_subset = np.vstack(X_list)
+    # true_labels = np.concatenate(labels) 
+    # X_subset = X_subset.T
+    # # normalize x_subset
+    # X_subset = normalize(X_subset, axis=0)
+
+    # if sigma > 0:
+    #     # Add non-negative Gaussian noise to the data
+    #     noise = np.random.normal(0, sigma, X_subset.shape)
+    #     X_subset += noise
+    #     # 0 truncate negative values
+    #     X_subset = np.maximum(X_subset, 0)
     np.random.seed(random_state)
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     mnist = fetch_openml('mnist_784', version=1)
-    X_full = mnist.data.to_numpy() 
-    y_full = mnist.target.to_numpy().astype(int) 
+    X_full = mnist.data.to_numpy().reshape(-1, 28, 28)
+    y_full = mnist.target.to_numpy().astype(int)
 
-    # 2. Subset digits 0-5
-    X_list = []
-    labels = []
-
+    X_list, labels = [], []
     for digit in range(K):
         idx = np.where(y_full == digit)[0]
         selected_idx = np.random.choice(idx, n, replace=False)
         X_list.append(X_full[selected_idx])
         labels.append(np.full(len(selected_idx), digit))
 
-    X_subset = np.vstack(X_list)
-    true_labels = np.concatenate(labels) 
-    X_subset = X_subset.T
-    # normalize x_subset
-    X_subset = normalize(X_subset, axis=0)
+    X_subset = np.concatenate(X_list, axis=0)  # shape (K*n, 28, 28)
+    true_labels = np.concatenate(labels)
+
+    # -----------------------------
+    # 2. Resize to 32×32 (matches reference)
+    # -----------------------------
+    resize_transform = transforms.Compose([
+        transforms.ToPILImage(),
+        transforms.Resize((32, 32)),
+        transforms.ToTensor()
+    ])
+
+    print("Resizing MNIST images to 32×32...")
+    X_resized = torch.stack([resize_transform(x.astype(np.uint8)) for x in X_subset])
+    # shape: (K*n, 1, 32, 32)
+
+    # -----------------------------
+    # 3. Scattering transform (J=3)
+    # -----------------------------
+    print("Computing scattering on MNIST...")
+    scattering = Scattering2D(J=3, shape=(32, 32)).to(device)
+
+    X_tensor = X_resized.to(device)
+    with torch.no_grad():
+        scatter_feats = scattering(X_tensor)  # (N, C, H, W)
+
+    # -----------------------------
+    # 4. Normalize and flatten
+    # -----------------------------
+    data = scatter_feats.cpu().numpy()
+    n_sample, C, H, W = data.shape
+    data = data.reshape(n_sample, C, -1)
+
+    # Normalize each scattering transform to [-1, 1]
+    image_norm = np.linalg.norm(data, ord=np.inf, axis=2, keepdims=True)
+    data = data / image_norm
+
+    # Flatten all transforms
+    data = data.reshape(n_sample, -1)
+
+    # -----------------------------
+    # 5. Dimensionality reduction (PCA)
+    # -----------------------------
+    print("Reducing dimensionality with PCA...")
+    pca = PCA(n_components=500, random_state=random_state)
+    X_reduced = pca.fit_transform(data)
+
+    # -----------------------------
+    # 6. Normalize and optionally add nonnegative noise
+    # -----------------------------
+    X_reduced = normalize(X_reduced, axis=0)
 
     if sigma > 0:
-        # Add non-negative Gaussian noise to the data
-        noise = np.random.normal(0, sigma, X_subset.shape)
-        X_subset += noise
-        # 0 truncate negative values
-        X_subset = np.maximum(X_subset, 0)
+        noise = np.random.normal(0, sigma, X_reduced.shape)
+        X_reduced += noise
+        X_reduced = np.maximum(X_reduced, 0)  # truncate negatives
 
+    # -----------------------------
+    # 7. Final output
+    # -----------------------------
+    print("Final feature shape:", X_reduced.shape)
+    print("Labels shape:", true_labels.shape)
+    print("Done.")
     if model == 'sscnmf':
         project_name = 'sscnmf-MNIST'
     elif model == 'ssc-omp-nmf':

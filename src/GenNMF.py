@@ -16,6 +16,8 @@ from scipy.optimize import nnls, minimize
 from sklearn.preprocessing import normalize
 from sklearn.linear_model import OrthogonalMatchingPursuit
 
+from ssc_omp import *
+
 def data_simulation(m, r, n_k, K, sigma=0.0, random_state=None):
     """
     Simulate K distinct subspaces in R^m, each with dimension r,
