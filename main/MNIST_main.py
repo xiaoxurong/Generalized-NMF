@@ -105,9 +105,10 @@ def main(model, r, n, K, sigma=0.0, alpha = 0.1, l1_reg=0.01, random_state=None,
     n_sample, C, H, W = data.shape
     data = data.reshape(n_sample, C, -1)
 
-    # Normalize each scattering transform to [-1, 1]
-    image_norm = np.linalg.norm(data, ord=np.inf, axis=2, keepdims=True)
-    data = data / image_norm
+    # Nonnegative normalization for NMF compatibility
+    data_min = data.min(axis=2, keepdims=True)
+    data_max = data.max(axis=2, keepdims=True)
+    data = (data - data_min) / (data_max - data_min + 1e-8)
 
     # Flatten all transforms
     data = data.reshape(n_sample, -1)
