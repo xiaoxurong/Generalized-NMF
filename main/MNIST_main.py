@@ -117,7 +117,7 @@ def main(model, r, n, K, sigma=0.0, alpha = 0.1, l1_reg=0.01, random_state=None,
     # 5. Dimensionality reduction (PCA)
     # -----------------------------
     print("Reducing dimensionality with PCA...")
-    pca = PCA(n_components=500, random_state=random_state)
+    pca = PCA(n_components=300, random_state=random_state)
     X_reduced = pca.fit_transform(data)
 
     # -----------------------------
