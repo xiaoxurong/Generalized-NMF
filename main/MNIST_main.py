@@ -124,6 +124,9 @@ def main(model, r, n, K, sigma=0.0, alpha = 0.1, l1_reg=0.01, random_state=None,
     # -----------------------------
     X_reduced = normalize(X_reduced, axis=0)
 
+    # zero truncate
+    X_reduced = np.maximum(X_reduced, 0)
+
     if sigma > 0:
         noise = np.random.normal(0, sigma, X_reduced.shape)
         X_reduced += noise
