@@ -307,7 +307,7 @@ def ssc_omp_nmf_baseline(X, r, K, true_labels, max_iter=1000, random_state=None,
     # use the ssc_omp function to do the clustering
     model = SparseSubspaceClusteringOMP(n_clusters=K, affinity='nearest_neighbors', random_state=random_state)
     print("Fitting SSC-OMP model... on data with shape:", X.shape)
-    model.fit(X)
+    model.fit(X.T)
     pred_labels = model.labels_
 
     # # Step 2: Initialize containers
