@@ -116,28 +116,30 @@ def main(model, r, n, K, sigma=0.0, alpha = 0.1, l1_reg=0.01, random_state=None,
     # -----------------------------
     # 5. Dimensionality reduction (PCA)
     # -----------------------------
-    print("Reducing dimensionality with PCA...")
-    pca = PCA(n_components=500, random_state=random_state)
-    X_reduced = pca.fit_transform(data)
+    # print("Reducing dimensionality with PCA...")
+    # pca = PCA(n_components=500, random_state=random_state)
+    # X_reduced = pca.fit_transform(data)
 
     # -----------------------------
     # 6. Normalize and optionally add nonnegative noise
     # -----------------------------
-    X_reduced = normalize(X_reduced, axis=0)
+    # X_reduced = normalize(X_reduced, axis=0)
 
-    # zero truncate
-    X_reduced = np.maximum(X_reduced, 0)
-    X_reduced = X_reduced.T
+    # # zero truncate
+    # X_reduced = np.maximum(X_reduced, 0)
+    # X_reduced = X_reduced.T
+
+    X_subset = data.T  # shape (features, samples)
 
     if sigma > 0:
-        noise = np.random.normal(0, sigma, X_reduced.shape)
-        X_reduced += noise
-        X_reduced = np.maximum(X_reduced, 0)  # truncate negatives
+        noise = np.random.normal(0, sigma, X_subset.shape)
+        X_subset += noise
+        X_subset = np.maximum(X_subset, 0)  # truncate negatives
 
     # -----------------------------
     # 7. Final output
     # -----------------------------
-    print("Final feature shape:", X_reduced.shape)
+    print("Final feature shape:", X_subset.shape)
     print("Labels shape:", true_labels.shape)
     print("Done.")
     if model == 'sscnmf':
@@ -166,10 +168,10 @@ def main(model, r, n, K, sigma=0.0, alpha = 0.1, l1_reg=0.01, random_state=None,
 
     if model == 'sscnmf':
         acc, ARI, NMI, reconstruction_error, _, _, _ = ssc_nmf_baseline(
-            X_reduced, K, r, true_labels=true_labels, alpha=alpha)
+            X_subset, K, r, true_labels=true_labels, alpha=alpha)
     elif model == 'ssc-omp-nmf':
         acc, ARI, NMI, reconstruction_error, _, _, _ = ssc_omp_nmf_baseline(
-            X_reduced, K, r, true_labels=true_labels, n_nonzero_coefs=n_nonzero_coefs, random_state=random_state)
+            X_subset, K, r, true_labels=true_labels, n_nonzero_coefs=n_nonzero_coefs, random_state=random_state)
     elif model == 'ricc':
         acc, ARI, NMI, reconstruction_error, _, _, _ = iter_reg_coneclus_warmstart(
             X_subset, K, r, true_labels=true_labels)
