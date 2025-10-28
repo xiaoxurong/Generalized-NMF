@@ -18,6 +18,7 @@ from src.deepNMF import *
 from src.deepSSCNMF import *
 from sklearn.linear_model import Lasso
 from sklearn.preprocessing import normalize
+from sklearn import PCA
 from src.nmf import *
 from sklearn.datasets import fetch_olivetti_faces, fetch_openml 
 from kymatio.torch import Scattering2D
