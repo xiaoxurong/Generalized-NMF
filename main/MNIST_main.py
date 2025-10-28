@@ -100,7 +100,7 @@ def main(model, r, n, K, sigma=0.0, alpha = 0.1, l1_reg=0.01, random_state=None,
     # 3. Scattering transform (J=3)
     # -----------------------------
     print("Computing scattering on MNIST...")
-    scattering = Scattering2D(J=3, shape=(32, 32)).to(device)
+    scattering = Scattering2D(J=3, shape=(32, 32))
 
     X_tensor = X_resized.to(device)
     with torch.no_grad():
