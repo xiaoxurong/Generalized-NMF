@@ -341,6 +341,9 @@ def ssc_omp_nmf_baseline(X, r, K, true_labels, max_iter=1000, random_state=None,
 
     # Step 4: Evaluate reconstruction error
     reconstruction_error = np.linalg.norm(X_new - X) / np.linalg.norm(X)
+    acc = remap_accuracy(true_labels, pred_labels)
+    ARI = adjusted_rand_score(true_labels, pred_labels)
+    NMI = normalized_mutual_info_score(true_labels, pred_labels)
 
     return acc, ARI, NMI, reconstruction_error, pred_labels, subspace_bases, subspace_coef
 
