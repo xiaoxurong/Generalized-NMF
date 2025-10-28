@@ -16,7 +16,7 @@ from scipy.optimize import nnls, minimize
 from sklearn.preprocessing import normalize
 from sklearn.linear_model import OrthogonalMatchingPursuit
 
-from ssc_omp import *
+from src.ssc_omp import *
 
 def data_simulation(m, r, n_k, K, sigma=0.0, random_state=None):
     """
@@ -304,7 +304,7 @@ def ssc_omp_nmf_baseline(X, r, K, true_labels, max_iter=1000, random_state=None,
     np.random.seed(random_state)
 
     # Step 1: SSC clustering
-    pred_labels, acc, ARI, NMI = baseline_ssc_omp(X, true_labels, n_nonzero_coefs=n_nonzero_coefs, random_state=random_state)
+    
 
     # # Step 2: Initialize containers
     # sub_datasets = []
