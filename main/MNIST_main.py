@@ -57,18 +57,6 @@ def main(model, r, n, K, sigma=0.0, alpha = 0.1, l1_reg=0.01, random_state=None,
     #     X_list.append(X_full[selected_idx])
     #     labels.append(np.full(len(selected_idx), digit))
 
-    # X_subset = np.vstack(X_list)
-    # true_labels = np.concatenate(labels) 
-    # X_subset = X_subset.T
-    # # normalize x_subset
-    # X_subset = normalize(X_subset, axis=0)
-
-    # if sigma > 0:
-    #     # Add non-negative Gaussian noise to the data
-    #     noise = np.random.normal(0, sigma, X_subset.shape)
-    #     X_subset += noise
-    #     # 0 truncate negative values
-    #     X_subset = np.maximum(X_subset, 0)
     np.random.seed(random_state)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     mnist = fetch_openml('mnist_784', version=1)
@@ -173,10 +161,10 @@ def main(model, r, n, K, sigma=0.0, alpha = 0.1, l1_reg=0.01, random_state=None,
 
     if model == 'sscnmf':
         acc, ARI, NMI, reconstruction_error, _, _, _ = ssc_nmf_baseline(
-            X_subset, K, r, true_labels=true_labels, alpha=alpha)
+            X_reduced, K, r, true_labels=true_labels, alpha=alpha)
     elif model == 'ssc-omp-nmf':
         acc, ARI, NMI, reconstruction_error, _, _, _ = ssc_omp_nmf_baseline(
-            X_subset, K, r, true_labels=true_labels, n_nonzero_coefs=n_nonzero_coefs, random_state=random_state)
+            X_reduced, K, r, true_labels=true_labels, n_nonzero_coefs=n_nonzero_coefs, random_state=random_state)
     elif model == 'ricc':
         acc, ARI, NMI, reconstruction_error, _, _, _ = iter_reg_coneclus_warmstart(
             X_subset, K, r, true_labels=true_labels)
