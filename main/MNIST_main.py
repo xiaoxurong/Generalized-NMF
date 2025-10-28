@@ -9,6 +9,7 @@ sys.path.insert(0, parentdir)
 import numpy as np
 import argparse
 import wandb
+import torch
 from sklearn.metrics import adjusted_rand_score
 from src.GenNMF import *
 from src.modified_dscnmf import *
@@ -19,7 +20,7 @@ from sklearn.linear_model import Lasso
 from sklearn.preprocessing import normalize
 from src.nmf import *
 from sklearn.datasets import fetch_olivetti_faces, fetch_openml 
-from kymatio import Scattering2D
+from kymatio.torch import Scattering2D
 from torchvision import transforms
 
 def arg_parser():
