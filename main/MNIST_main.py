@@ -111,6 +111,7 @@ def main(model, r, n, K, sigma=0.0, alpha = 0.1, l1_reg=0.01, random_state=None,
     # 4. Normalize and flatten
     # -----------------------------
     data = scatter_feats.cpu().numpy()
+    data = np.squeeze(data)
     print(data.shape)
     n_sample, C, H, W = data.shape
     data = data.reshape(n_sample, C, -1)
