@@ -128,5 +128,5 @@ if __name__ == "__main__":
     graph_weighting = args.graph_weighting
     n_nonzero_coefs = args.n_nonzero_coefs
 
-    main(model, r, n, K, sigma, alpha, l1_reg, random_state, max_iter, tol, graph_weighting, n_nonzero_coefs)
+    main(model, r, K, sigma, alpha, l1_reg, random_state, max_iter, tol, graph_weighting, n_nonzero_coefs)
     
