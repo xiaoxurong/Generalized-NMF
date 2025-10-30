@@ -41,11 +41,10 @@ def main(model, r, K, sigma=0.0, alpha=0.1, l1_reg=0.01, random_state=None, max_
     df = pd.read_csv('data/pbmc_SeqWell_norm_common_sqrt_tp.txt', index_col=0, sep='\t')
     pbmc_values = df.values
     X = pbmc_values.T
-    X = X[:-1, :]  # remove last row which is cell name
 
     # turn labels into numeric labels
     le = LabelEncoder()
-    true_labels = le.fit_transform(df.index.str.split('_').str[-1].values)
+    true_labels = le.fit_transform(df.index.str.split('_').str[-2].values)
     print("Unique labels and counts:", np.unique(true_labels, return_counts=True))
 
     np.random.seed(random_state)
