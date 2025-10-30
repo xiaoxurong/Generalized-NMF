@@ -46,6 +46,7 @@ def main(model, r, K, sigma=0.0, alpha=0.1, l1_reg=0.01, random_state=None, max_
     # turn labels into numeric labels
     le = LabelEncoder()
     true_labels = le.fit_transform(df.index.str.split('_').str[-1].values)
+    print("Unique labels and counts:", np.unique(true_labels, return_counts=True))
 
     np.random.seed(random_state)
 
