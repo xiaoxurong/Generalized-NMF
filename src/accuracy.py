@@ -1,5 +1,4 @@
 from scipy import sparse
-from scipy.sparse.linalg.eigen.arpack import ArpackNoConvergence
 from scipy.optimize import linear_sum_assignment
 from sklearn.metrics.cluster import _supervised
 from sklearn.preprocessing import normalize
