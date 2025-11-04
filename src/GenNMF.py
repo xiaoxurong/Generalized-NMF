@@ -75,7 +75,10 @@ def baseline_nmf(X, r, max_iter=1000, tol=1e-6, random_state=None):
     np.random.seed(random_state)
     U, V = anls(X, r, max_iter=max_iter, tol=tol)
     X_new = U @ V
-    reconstruction_error = np.linalg.norm(X_new - X) / np.linalg.norm(X)
+    if np.linalg.norm(X) == 0:
+        reconstruction_error = np.nan
+    else:
+        reconstruction_error = np.linalg.norm(X_new - X) / np.linalg.norm(X)
     print(f"Baseline NMF reconstruction error: {reconstruction_error}")
     return U, V, reconstruction_error
 
