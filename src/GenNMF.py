@@ -169,15 +169,19 @@ def oracle_nmf(X, K, r, true_labels, random_state=None):
     np.random.seed(random_state)
     n = X.shape[1]
     total_error = 0.0
+    cluster_num = K
 
     for k in range(K):
         idx_k = np.where(true_labels == k)[0]
         X_k = X[:, idx_k]
         U_k, V_k, reconstruction_error_k = baseline_nmf(X_k, r, random_state=random_state)
-        
+        if reconstruction_error_k is None:
+            cluster_num -= 1
+            continue
+
         total_error += reconstruction_error_k
-    
-    reconstruction_error = total_error / K
+
+    reconstruction_error = total_error / cluster_num if cluster_num > 0 else np.nan
 
     return U_k, V_k, reconstruction_error
 
