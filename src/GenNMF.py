@@ -177,7 +177,7 @@ def oracle_nmf(X, K, r, true_labels, random_state=None):
         U_k, V_k, reconstruction_error_k = baseline_nmf(X_k, r, random_state=random_state)
         if reconstruction_error_k is None:
             cluster_num -= 1
-            continue
+            reconstruction_error_k = 0.0
 
         total_error += reconstruction_error_k
 
