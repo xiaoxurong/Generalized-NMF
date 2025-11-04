@@ -71,7 +71,7 @@ def data_simulation(m, r, n_k, K, sigma=0.0, random_state=None):
 
     return X, labels
 
-def baseline_nmf(X, r, max_iter=1000, tol=1e-6, random_state=42):
+def baseline_nmf(X, r, max_iter=1000, tol=1e-6, random_state=None):
     np.random.seed(random_state)
     U, V = anls(X, r, max_iter=max_iter, tol=tol)
     X_new = U @ V
