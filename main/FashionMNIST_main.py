@@ -31,7 +31,7 @@ def arg_parser():
     parser.add_argument('--max_iter', type=int, default=200, help='Maximum number of iterations (default: 50)')
     parser.add_argument('--tol', type=float, default=1e-6, help='Tolerance for stopping criterion (default: 1e-6)')
     parser.add_argument('--random_state', type=int, default=42, help='Random seed for clustering (default: None)')
-    parser.add_argument('--model', type=str, choices=['sscnmf', 'ricc', 'gnmf', 'gpcanmf', 'onmf_relu', 'dscnmf', 'onmf', 'deepnmf', 'deepsscnmf', 'ssc-omp-nmf'],
+    parser.add_argument('--model', type=str, choices=['sscnmf', 'ricc', 'gnmf', 'gpcanmf', 'onmf_relu', 'dscnmf', 'onmf', 'deepnmf', 'deepsscnmf', 'ssc-omp-nmf', 'oraclenmf'],
                         help='Model to use for clustering')
     parser.add_argument('--n_nonzero_coefs', type=int, default=8, help='Number of non-zero coefficients for OMP (default: 8)')
     parser.add_argument('--l1_reg', type=float, default=0.01,
@@ -94,6 +94,14 @@ def main(model, r, n, K, sigma=0.0, alpha=0.1, l1_reg=0.01, random_state=None, m
         acc, ARI, NMI, reconstruction_error = deep_ssc_nmf(
             X, ranks=[256, 128, 64], alpha=alpha, n_iter=max_iter,
             true_labels=true_labels)
+    elif model == 'oraclenmf':
+        project_name = 'oraclenmf-FashionMNIST'
+        acc = 1.0
+        ARI = 1.0
+        NMI = 1.0
+        r_oracle = r // K
+        _, _, reconstruction_error = oracle_nmf(
+            X, K=K, r=r_oracle, true_labels=true_labels)
     else:
         raise ValueError(f"Unknown model: {model}") 
     

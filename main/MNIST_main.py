@@ -35,7 +35,7 @@ def arg_parser():
     parser.add_argument('--max_iter', type=int, default=200, help='Maximum number of iterations (default: 50)')
     parser.add_argument('--tol', type=float, default=1e-6, help='Tolerance for stopping criterion (default: 1e-6)')
     parser.add_argument('--random_state', type=int, default=None, help='Random seed for clustering (default: None)')
-    parser.add_argument('--model', type=str, choices=['sscnmf', 'ricc', 'gnmf', 'gpcanmf', 'onmf_relu', 'dscnmf', 'onmf', 'deepnmf', 'deepsscnmf', 'ssc-omp-nmf'],
+    parser.add_argument('--model', type=str, choices=['sscnmf', 'ricc', 'gnmf', 'gpcanmf', 'onmf_relu', 'dscnmf', 'onmf', 'deepnmf', 'deepsscnmf', 'ssc-omp-nmf', 'oraclenmf'],
     help='Model to use for clustering')
     parser.add_argument('--n_nonzero_coefs', type=int, default=8, help='Number of non-zero coefficients for OMP')
     parser.add_argument('--l1_reg', type=float, default=0.01, help='L1 regularization parameter for ONMF-ReLU/GPCANMF')
@@ -161,6 +161,8 @@ def main(model, r, n, K, sigma=0.0, alpha = 0.1, l1_reg=0.01, random_state=None,
         project_name = 'deepnmf-MNIST'
     elif model == 'deepsscnmf':
         project_name = 'deepsscnmf-MNIST'
+    elif model == 'oraclenmf':
+        project_name = 'oraclenmf-MNIST'
 
     wandb.init(
         project="coneClustering",
@@ -195,6 +197,13 @@ def main(model, r, n, K, sigma=0.0, alpha = 0.1, l1_reg=0.01, random_state=None,
         acc, ARI, NMI, reconstruction_error = deep_ssc_nmf(
             X_subset, ranks=[256, 128, 64], alpha=alpha, n_iter=max_iter,
             true_labels=true_labels)
+    elif model == 'oraclenmf':
+        acc = 1.0
+        ARI = 1.0
+        NMI = 1.0
+        r_oracle = r // K
+        _, _, reconstruction_error = oracle_nmf(
+            X_subset, K=K, r=r_oracle, true_labels=true_labels)
 
     wandb.log({
         "accuracy": acc,
