@@ -162,53 +162,21 @@ def baseline_ssc(X, true_labels, alpha, random_state=None):
 
     return cluster_labels, acc, ARI, NMI
 
-# def baseline_ssc_omp(X, true_labels, n_nonzero_coefs=8, random_state=None):
-#     """
-#     Sparse Subspace Clustering using OMP instead of Lasso.
+def oracle_nmf(X, K, r, true_labels, random_state=None):
+    np.random.seed(random_state)
+    n = X.shape[1]
+    total_error = 0.0
+
+    for k in range(K):
+        idx_k = np.where(true_labels == k)[0]
+        X_k = X[:, idx_k]
+        U_k, V_k, reconstruction_error_k = baseline_nmf(X_k, r, random_state=random_state)
+        
+        total_error += reconstruction_error_k
     
-#     Args:
-#         X: (n_features, n_samples)
-#         true_labels: (n_samples,)
-#         n_nonzero_coefs: sparsity level per sample (number of neighbors)
-#     """
-#     # Normalize data
-#     # X = X - X.mean(axis=1, keepdims=True)
-#     # X = normalize(X, axis=0)  # row-wise ℓ2 normalization
-#     n_samples = X.shape[1]
+    reconstruction_error = total_error / K
 
-#     C = np.zeros((n_samples, n_samples))
-
-#     for i in range(n_samples):
-#         x_i = X[:, i]
-#         X_rest = np.delete(X, i, axis=1)
-
-#         omp = OrthogonalMatchingPursuit(n_nonzero_coefs=n_nonzero_coefs, fit_intercept=False)
-#         omp.fit(X_rest, x_i)
-#         c = omp.coef_
-
-#         C[np.arange(n_samples) != i, i] = c
-
-#     # Build symmetric affinity
-#     W = np.abs(C) + np.abs(C.T)
-
-#     # Spectral clustering
-#     n_clusters = len(np.unique(true_labels))
-#     spectral = SpectralClustering(
-#         n_clusters=n_clusters,
-#         affinity='precomputed',
-#         assign_labels='discretize',
-#         random_state=random_state
-#     )
-#     cluster_labels = spectral.fit_predict(W)
-#     print(cluster_labels.shape)
-#     print(true_labels.shape)
-
-#     # Evaluate
-#     acc = remap_accuracy(true_labels, cluster_labels)
-#     ari = adjusted_rand_score(true_labels, cluster_labels)
-#     nmi = normalized_mutual_info_score(true_labels, cluster_labels)
-
-#     return cluster_labels, acc, ari, nmi
+    return U_k, V_k, reconstruction_error
 
 def ksub_nmf_baseline(X, r, K, true_labels, max_iter=1000, tol=1e-6, random_state=None):
     np.random.seed(random_state)
