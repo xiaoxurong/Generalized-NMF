@@ -175,7 +175,7 @@ def oracle_nmf(X, K, r, true_labels, random_state=None):
         idx_k = np.where(true_labels == k)[0]
         X_k = X[:, idx_k]
         U_k, V_k, reconstruction_error_k = baseline_nmf(X_k, r, random_state=random_state)
-        if reconstruction_error_k is None:
+        if np.isnan(reconstruction_error_k):
             cluster_num -= 1
             reconstruction_error_k = 0.0
 
